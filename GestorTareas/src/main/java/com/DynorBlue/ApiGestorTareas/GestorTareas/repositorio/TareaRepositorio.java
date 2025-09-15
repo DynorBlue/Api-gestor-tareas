@@ -10,5 +10,5 @@ import java.util.List;
 
 public interface TareaRepositorio extends JpaRepository<Tarea, Integer> {
     List<Tarea> findAllByProyecto(Proyecto Proyecto);
-    List<Tarea> findByProyectoOrderByPrioridadDesc(Proyecto proyecto);
+    List<Tarea> findByProyectoInOrderByPrioridadDesc(List<Proyecto> proyectos);
 }
