@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import org.w3c.dom.Text;
 
 import java.util.Date;
-
+@Entity
 public class Comentario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -3,11 +3,13 @@ package com.DynorBlue.ApiGestorTareas.GestorTareas.servicio;
 import com.DynorBlue.ApiGestorTareas.GestorTareas.modelo.Proyecto;
 import com.DynorBlue.ApiGestorTareas.GestorTareas.modelo.Usuario;
 import com.DynorBlue.ApiGestorTareas.GestorTareas.repositorio.ProyectoRepositorio;
+import com.DynorBlue.ApiGestorTareas.GestorTareas.servicio.ProyectoServicio;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class ProyectoServicioImpl implements ProyectoServicio {
 
@@ -19,8 +21,38 @@ public class ProyectoServicioImpl implements ProyectoServicio {
     }
 
     @Override
+    public Proyecto guardarProyecto(Proyecto proyecto) {
+        return proyectoRepositorio.save(proyecto);
+    }
+
+    @Override
+    public List<Proyecto> obtenerTodosLosProyectos() {
+        return proyectoRepositorio.findAll();
+    }
+
+    @Override
+    public Proyecto obtenerProyectoPorId(Integer id) {
+        Optional<Proyecto> proyecto = proyectoRepositorio.findById(id);
+        return proyecto.orElse(null);
+    }
+
+    @Override
     public List<Proyecto> obtenerProyectosPorPropietario(Usuario usuario) {
-        // Llama al método del repositorio para obtener los proyectos de un propietario específico
-        return proyectoRepositorio.findAllOrderByUsuarioAsc(usuario);
+        return proyectoRepositorio.findByUsuario(usuario);
+    }
+
+    @Override
+    public List<Proyecto> obtenerProyectosPorPropietarioOrdenados(Usuario usuario) {
+        return proyectoRepositorio.findByUsuarioOrderByNombreProyectoAsc(usuario);
+    }
+
+    @Override
+    public Proyecto actualizarProyecto(Proyecto proyecto) {
+        return proyectoRepositorio.save(proyecto);
+    }
+
+    @Override
+    public void eliminarProyecto(Integer id) {
+        proyectoRepositorio.deleteById(id);
     }
 }

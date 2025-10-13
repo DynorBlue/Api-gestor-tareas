@@ -7,5 +7,6 @@ import java.util.Optional;
 public interface UsuarioServicio {
     Usuario registrarUsuario(Usuario usuario);
     Optional<Usuario> findByNombreUsuario(String nombreUsuario);
-
+    Usuario obtenerUsuarioPorId(Integer id);
+    Usuario actualizarUsuario(Usuario usuario);
 }

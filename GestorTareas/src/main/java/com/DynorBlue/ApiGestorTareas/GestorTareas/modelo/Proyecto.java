@@ -14,7 +14,7 @@ public class Proyecto {
 
     @ManyToOne
     @JoinColumn(name = "idUsuario", nullable = false)
-    private Usuario usario;
+    private Usuario usuario;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +31,7 @@ public class Proyecto {
 
     public Proyecto(String descripcion, Usuario usario, String nombreProyecto, Integer idProyecto, Date fechaCreacion) {
         this.descripcion = descripcion;
-        this.usario = usario;
+        this.usuario = usario;
         this.nombreProyecto = nombreProyecto;
         this.idProyecto = idProyecto;
         this.fechaCreacion = fechaCreacion;
@@ -73,10 +73,10 @@ public class Proyecto {
     }
 
     public Usuario getUsario() {
-        return usario;
+        return usuario;
     }
 
     public void setUsario(Usuario usario) {
-        this.usario = usario;
+        this.usuario = usario;
     }
 }

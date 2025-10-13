@@ -12,5 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProyectoRepositorio extends JpaRepository<Proyecto, Integer> {
-    List<Proyecto>findAllOrderByUsuarioAsc(Usuario usuario);
+    List<Proyecto> findByUsuarioOrderByNombreProyectoAsc(Usuario usuario);
+    List<Proyecto> findByUsuario(Usuario usuario);
+
 }

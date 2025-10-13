@@ -1,0 +1,5 @@
+en el paquete modelo se cuenta con 4 clases principales
+comentario:
+proyecto: esta relacionado
+tarea: esta clase esta vinculadad a la clase proyecto en una relacion de muchos a uno
+usuario: datos necesarios como contraseña nombre y nombre de usuario para poder trabajar de manera correcta
