@@ -16,4 +16,5 @@ public interface ComentarioServicio {
 
     // Personalizado: comentarios de una tarea
     List<Comentario> obtenerComentariosPorTarea(Tarea tarea);
+    Comentario actualizarComentarioPorId(Integer id, Comentario data);
 }

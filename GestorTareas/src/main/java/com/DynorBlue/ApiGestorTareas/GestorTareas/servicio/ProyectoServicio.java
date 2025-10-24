@@ -1,23 +1,13 @@
 package com.DynorBlue.ApiGestorTareas.GestorTareas.servicio;
 
 import com.DynorBlue.ApiGestorTareas.GestorTareas.modelo.Proyecto;
-import com.DynorBlue.ApiGestorTareas.GestorTareas.modelo.Usuario;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface ProyectoServicio {
-
-    // Crear
-    Proyecto guardarProyecto(Proyecto proyecto);
-
-    // Leer
-    List<Proyecto> obtenerTodosLosProyectos();
-    Proyecto obtenerProyectoPorId(Integer id);
-    List<Proyecto> obtenerProyectosPorPropietario(Usuario usuario);
-    List<Proyecto> obtenerProyectosPorPropietarioOrdenados(Usuario usuario); //  Nuevo método
-
-    // Actualizar
-    Proyecto actualizarProyecto(Proyecto proyecto);
-
-    // Borrar
-    void eliminarProyecto(Integer id);
+    Proyecto crear(Integer idUsuario, String nombreProyecto, String descripcion);
+    Page<Proyecto> listarPorUsuario(Integer idUsuario, Pageable pageable);
+    Proyecto obtenerDeUsuario(Integer idProyecto, Integer idUsuario);
+    Proyecto actualizar(Integer idProyecto, Integer idUsuario, String nuevoNombre, String nuevaDescripcion);
+    void eliminar(Integer idProyecto, Integer idUsuario);
 }

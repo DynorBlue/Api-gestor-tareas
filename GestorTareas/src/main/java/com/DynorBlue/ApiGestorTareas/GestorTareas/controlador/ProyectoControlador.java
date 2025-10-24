@@ -2,67 +2,74 @@ package com.DynorBlue.ApiGestorTareas.GestorTareas.controlador;
 
 import com.DynorBlue.ApiGestorTareas.GestorTareas.modelo.Proyecto;
 import com.DynorBlue.ApiGestorTareas.GestorTareas.servicio.ProyectoServicio;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/proyectos")
 public class ProyectoControlador {
 
-    @Autowired
-    private ProyectoServicio proyectoServicio;
+    private final ProyectoServicio proyectoServicio;
 
+    public ProyectoControlador(ProyectoServicio proyectoServicio) {
+        this.proyectoServicio = proyectoServicio;
+    }
+
+    // Crear: requiere idUsuario
     @PostMapping
-    public ResponseEntity<Proyecto> crearProyecto(@RequestBody Proyecto proyecto){
-        Proyecto nuevoProyecto = proyectoServicio.guardarProyecto(proyecto);
-        return new ResponseEntity<>(nuevoProyecto, HttpStatus.CREATED);
+    public ResponseEntity<Proyecto> crearProyecto(
+            @RequestParam Integer idUsuario,
+            @RequestBody Proyecto body) {
+        var creado = proyectoServicio.crear(idUsuario, body.getNombreProyecto(), body.getDescripcion());
+        return new ResponseEntity<>(creado, HttpStatus.CREATED);
     }
 
+    // Listar por usuario (paginado)
     @GetMapping
-    public ResponseEntity<List<Proyecto>> obtenerTodosLosProyectos() {
-        List<Proyecto> proyectos = proyectoServicio.obtenerTodosLosProyectos();
-        return new ResponseEntity<>(proyectos, HttpStatus.OK);
+    public ResponseEntity<Page<Proyecto>> listarPorUsuario(
+            @RequestParam Integer idUsuario,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        var result = proyectoServicio.listarPorUsuario(idUsuario, PageRequest.of(page, size));
+        return ResponseEntity.ok(result);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Proyecto> obtenerProyectoPorId(@PathVariable Integer id) {
-        Proyecto proyecto = proyectoServicio.obtenerProyectoPorId(id);
-        if (proyecto != null) {
-            return new ResponseEntity<>(proyecto, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    // Obtener un proyecto que pertenezca al usuario
+    @GetMapping("/{idProyecto}")
+    public ResponseEntity<Proyecto> obtenerProyecto(
+            @PathVariable Integer idProyecto,
+            @RequestParam Integer idUsuario
+    ) {
+        var p = proyectoServicio.obtenerDeUsuario(idProyecto, idUsuario);
+        return ResponseEntity.ok(p);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Proyecto> actualizarProyecto(@PathVariable Integer id, @RequestBody Proyecto proyectoActualizado) {
-        Proyecto proyectoExistente = proyectoServicio.obtenerProyectoPorId(id);
-        if (proyectoExistente != null) {
-            proyectoExistente.setNombreProyecto(proyectoActualizado.getNombreProyecto());
-            proyectoExistente.setDescripcion(proyectoActualizado.getDescripcion());
-            proyectoExistente.setUsario(proyectoActualizado.getUsario());
-            // Si la fecha de creación se actualiza
-            proyectoExistente.setFechaCreacion(proyectoActualizado.getFechaCreacion());
-
-            Proyecto proyectoModificado = proyectoServicio.actualizarProyecto(proyectoExistente);
-            return new ResponseEntity<>(proyectoModificado, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    // Actualizar nombre/descripcion
+    @PutMapping("/{idProyecto}")
+    public ResponseEntity<Proyecto> actualizarProyecto(
+            @PathVariable Integer idProyecto,
+            @RequestParam Integer idUsuario,
+            @RequestBody Proyecto body
+    ) {
+        var actualizado = proyectoServicio.actualizar(
+                idProyecto,
+                idUsuario,
+                body.getNombreProyecto(),
+                body.getDescripcion()
+        );
+        return ResponseEntity.ok(actualizado);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarProyecto(@PathVariable Integer id) {
-        Proyecto proyectoExistente = proyectoServicio.obtenerProyectoPorId(id);
-        if (proyectoExistente != null) {
-            proyectoServicio.eliminarProyecto(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    // Eliminar
+    @DeleteMapping("/{idProyecto}")
+    public ResponseEntity<Void> eliminarProyecto(
+            @PathVariable Integer idProyecto,
+            @RequestParam Integer idUsuario
+    ) {
+        proyectoServicio.eliminar(idProyecto, idUsuario);
+        return ResponseEntity.noContent().build();
     }
 }

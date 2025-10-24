@@ -3,120 +3,73 @@ package com.DynorBlue.ApiGestorTareas.GestorTareas.modelo;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import org.w3c.dom.Text;
+import jakarta.validation.constraints.NotBlank;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Tarea")
+@Table(name = "tarea")
 public class Tarea {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_tarea")
     private Integer idTarea;
 
-    @ManyToOne
-    @JoinColumn(name = "idProyecto")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_proyecto", nullable = false)
     private Proyecto proyecto;
 
+    @NotBlank
     @Column(nullable = false, length = 100)
     private String titulo;
 
+    @NotBlank
     @Column(nullable = false, length = 250)
     private String descripcion;
 
-    @Column(columnDefinition = "VARCHAR(100) default 'Ocupado'")
-    private String estado; // en proceso, concluida, pendiente
+    @Column(length = 100)
+    private String estado; // por defecto "Ocupado" vía @PrePersist o lógica de servicio
 
+    @Min(1) @Max(5)
     @Column
-    @Min(1)
-    @Max(5)
-    private Integer prioridad; // 5 importante, 1 no tan importante
+    private Integer prioridad;
 
-    @Column(nullable = false)
-    private Date fechaLimite;
+    @CreationTimestamp
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
+    private LocalDateTime fechaCreacion;
 
-    @Column(nullable = false)
-    private Date fechaCreacion;
+    public Tarea() { }
 
-    // constructor setters y getters
-
-
-    public Tarea() {
-    }
-
-    public Tarea(String descripcion, Integer idTarea, Date fechaLimite, Date fechaCreacion, String estado, Proyecto proyecto, Integer prioridad, String titulo) {
+    public Tarea(Proyecto proyecto, String titulo, String descripcion, Integer prioridad, String estado) {
+        this.proyecto = proyecto;
+        this.titulo = titulo;
         this.descripcion = descripcion;
-        this.idTarea = idTarea;
-        this.fechaLimite = fechaLimite;
-        this.fechaCreacion = fechaCreacion;
+        this.prioridad = prioridad;
         this.estado = estado;
-        this.proyecto = proyecto;
-        this.prioridad = prioridad;
-        this.titulo = titulo;
     }
 
-    public String getTitulo() {
-        return titulo;
+    @PrePersist
+    void prePersist() {
+        if (this.estado == null || this.estado.isBlank()) {
+            this.estado = "Ocupado";
+        }
     }
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public Proyecto getProyecto() {
-        return proyecto;
-    }
-
-    public void setProyecto(Proyecto proyecto) {
-        this.proyecto = proyecto;
-    }
-
-    public Integer getPrioridad() {
-        return prioridad;
-    }
-
-    public void setPrioridad(Integer prioridad) {
-        this.prioridad = prioridad;
-    }
-
-    public Integer getIdTarea() {
-        return idTarea;
-    }
-
+    public Integer getIdTarea() { return idTarea; }
     public void setIdTarea(Integer idTarea) {
         this.idTarea = idTarea;
     }
-
-    public Date getFechaCreacion() {
-        return fechaCreacion;
-    }
-
-    public void setFechaCreacion(Date fechaCreacion) {
-        this.fechaCreacion = fechaCreacion;
-    }
-
-    public Date getFechaLimite() {
-        return fechaLimite;
-    }
-
-    public void setFechaLimite(Date fechaLimite) {
-        this.fechaLimite = fechaLimite;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
-    public String getDescripcion() {
-        return descripcion;
-    }
-
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
-    }
+    public Proyecto getProyecto() { return proyecto; }
+    public void setProyecto(Proyecto proyecto) { this.proyecto = proyecto; }
+    public String getTitulo() { return titulo; }
+    public void setTitulo(String titulo) { this.titulo = titulo; }
+    public String getDescripcion() { return descripcion; }
+    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public String getEstado() { return estado; }
+    public void setEstado(String estado) { this.estado = estado; }
+    public Integer getPrioridad() { return prioridad; }
+    public void setPrioridad(Integer prioridad) { this.prioridad = prioridad; }
+    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
 }

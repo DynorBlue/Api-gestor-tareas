@@ -4,20 +4,19 @@ import com.DynorBlue.ApiGestorTareas.GestorTareas.modelo.Comentario;
 import com.DynorBlue.ApiGestorTareas.GestorTareas.modelo.Tarea;
 import com.DynorBlue.ApiGestorTareas.GestorTareas.servicio.ComentarioServicio;
 import com.DynorBlue.ApiGestorTareas.GestorTareas.servicio.TareaServicio;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/comentarios")
+@RequestMapping("/api/comentarios")
 public class ComentarioControlador {
 
     private final ComentarioServicio comentarioServicio;
     private final TareaServicio tareaServicio;
 
-    @Autowired
     public ComentarioControlador(ComentarioServicio comentarioServicio, TareaServicio tareaServicio) {
         this.comentarioServicio = comentarioServicio;
         this.tareaServicio = tareaServicio;
@@ -25,56 +24,47 @@ public class ComentarioControlador {
 
     // Crear comentario asociado a una tarea
     @PostMapping("/tarea/{tareaId}")
-    public ResponseEntity<Comentario> crearComentario(@PathVariable Integer tareaId, @RequestBody Comentario comentario) {
+    public ResponseEntity<Comentario> crearComentario(@PathVariable Integer tareaId,
+                                                      @Valid @RequestBody Comentario comentario) {
+        // Si la tarea no existe, el servicio lanzará RecursoNoEncontradoException -> 404 por tu Advice
         Tarea tarea = tareaServicio.obtenerTareaPorId(tareaId);
-        if (tarea == null) {
-            return ResponseEntity.notFound().build();
-        }
         comentario.setTarea(tarea);
-        return ResponseEntity.ok(comentarioServicio.guardarComentario(comentario));
+        Comentario creado = comentarioServicio.guardarComentario(comentario);
+        return ResponseEntity.ok(creado);
     }
 
     // Obtener comentario por id
     @GetMapping("/{id}")
     public ResponseEntity<Comentario> obtenerComentarioPorId(@PathVariable Integer id) {
-        Comentario comentario = comentarioServicio.obtenerComentarioPorId(id);
-        return comentario != null ? ResponseEntity.ok(comentario) : ResponseEntity.notFound().build();
+        Comentario c = comentarioServicio.obtenerComentarioPorId(id);
+        return ResponseEntity.ok(c);
     }
 
-    // Obtener todos los comentarios
+    // Listar todos
     @GetMapping
-    public List<Comentario> obtenerTodosComentarios() {
-        return comentarioServicio.obtenerTodosComentarios();
+    public ResponseEntity<List<Comentario>> obtenerTodosComentarios() {
+        return ResponseEntity.ok(comentarioServicio.obtenerTodosComentarios());
     }
 
-    // Obtener comentarios de una tarea específica
+    // Listar por tarea (recientes primero si tu servicio usa findByTareaOrderByFechaComentarioDesc)
     @GetMapping("/tarea/{tareaId}")
     public ResponseEntity<List<Comentario>> obtenerComentariosPorTarea(@PathVariable Integer tareaId) {
         Tarea tarea = tareaServicio.obtenerTareaPorId(tareaId);
-        if (tarea == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(comentarioServicio.obtenerComentariosPorTarea(tarea));
+        List<Comentario> lista = comentarioServicio.obtenerComentariosPorTarea(tarea);
+        return ResponseEntity.ok(lista);
     }
 
-    // Actualizar comentario
+    // Actualizar
     @PutMapping("/{id}")
-    public ResponseEntity<Comentario> actualizarComentario(@PathVariable Integer id, @RequestBody Comentario comentario) {
-        Comentario existente = comentarioServicio.obtenerComentarioPorId(id);
-        if (existente == null) {
-            return ResponseEntity.notFound().build();
-        }
-        comentario.setIdComentario(id);
-        return ResponseEntity.ok(comentarioServicio.actualizarComentario(comentario));
+    public ResponseEntity<Comentario> actualizarComentario(@PathVariable Integer id,
+                                                           @RequestBody Comentario comentario) {
+        Comentario actualizado = comentarioServicio.actualizarComentarioPorId(id, comentario);
+        return ResponseEntity.ok(actualizado);
     }
 
-    // Eliminar comentario
+    // Eliminar
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarComentario(@PathVariable Integer id) {
-        Comentario comentario = comentarioServicio.obtenerComentarioPorId(id);
-        if (comentario == null) {
-            return ResponseEntity.notFound().build();
-        }
         comentarioServicio.eliminarComentario(id);
         return ResponseEntity.noContent().build();
     }

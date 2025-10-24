@@ -1,58 +1,74 @@
 package com.DynorBlue.ApiGestorTareas.GestorTareas.servicio;
 
+import com.DynorBlue.ApiGestorTareas.GestorTareas.excepcion.OperacionInvalidaException;
+import com.DynorBlue.ApiGestorTareas.GestorTareas.excepcion.RecursoNoEncontradoException;
 import com.DynorBlue.ApiGestorTareas.GestorTareas.modelo.Proyecto;
 import com.DynorBlue.ApiGestorTareas.GestorTareas.modelo.Usuario;
 import com.DynorBlue.ApiGestorTareas.GestorTareas.repositorio.ProyectoRepositorio;
-import com.DynorBlue.ApiGestorTareas.GestorTareas.servicio.ProyectoServicio;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.DynorBlue.ApiGestorTareas.GestorTareas.repositorio.UsuarioRepositorio;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 public class ProyectoServicioImpl implements ProyectoServicio {
 
     private final ProyectoRepositorio proyectoRepositorio;
+    private final UsuarioRepositorio usuarioRepositorio;
 
-    @Autowired
-    public ProyectoServicioImpl(ProyectoRepositorio proyectoRepositorio) {
+    public ProyectoServicioImpl(ProyectoRepositorio proyectoRepositorio, UsuarioRepositorio usuarioRepositorio) {
         this.proyectoRepositorio = proyectoRepositorio;
+        this.usuarioRepositorio = usuarioRepositorio;
     }
 
     @Override
-    public Proyecto guardarProyecto(Proyecto proyecto) {
-        return proyectoRepositorio.save(proyecto);
+    public Proyecto crear(Integer idUsuario, String nombreProyecto, String descripcion) {
+        Usuario u = usuarioRepositorio.findById(idUsuario)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Usuario no encontrado"));
+        if (proyectoRepositorio.existsByUsuario_IdUsuarioAndNombreProyectoIgnoreCase(idUsuario, nombreProyecto)) {
+            throw new OperacionInvalidaException("Ya existe un proyecto con ese nombre.");
+        }
+        Proyecto p = new Proyecto();
+        p.setUsuario(u);
+        p.setNombreProyecto(nombreProyecto);
+        p.setDescripcion(descripcion);
+        return proyectoRepositorio.save(p);
     }
 
     @Override
-    public List<Proyecto> obtenerTodosLosProyectos() {
-        return proyectoRepositorio.findAll();
+    @Transactional(readOnly = true)
+    public Page<Proyecto> listarPorUsuario(Integer idUsuario, Pageable pageable) {
+        return proyectoRepositorio.findByUsuario_IdUsuario(idUsuario, pageable);
     }
 
     @Override
-    public Proyecto obtenerProyectoPorId(Integer id) {
-        Optional<Proyecto> proyecto = proyectoRepositorio.findById(id);
-        return proyecto.orElse(null);
+    @Transactional(readOnly = true)
+    public Proyecto obtenerDeUsuario(Integer idProyecto, Integer idUsuario) {
+        return proyectoRepositorio.findByIdProyectoAndUsuario_IdUsuario(idProyecto, idUsuario)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Proyecto no encontrado o no pertenece al usuario"));
     }
 
     @Override
-    public List<Proyecto> obtenerProyectosPorPropietario(Usuario usuario) {
-        return proyectoRepositorio.findByUsuario(usuario);
+    public Proyecto actualizar(Integer idProyecto, Integer idUsuario, String nuevoNombre, String nuevaDescripcion) {
+        Proyecto p = obtenerDeUsuario(idProyecto, idUsuario);
+        if (nuevoNombre != null && !nuevoNombre.isBlank()
+                && !p.getNombreProyecto().equalsIgnoreCase(nuevoNombre)) {
+            if (proyectoRepositorio.existsByUsuario_IdUsuarioAndNombreProyectoIgnoreCase(idUsuario, nuevoNombre)) {
+                throw new OperacionInvalidaException("Ya existe otro proyecto con ese nombre.");
+            }
+            p.setNombreProyecto(nuevoNombre);
+        }
+        if (nuevaDescripcion != null) {
+            p.setDescripcion(nuevaDescripcion);
+        }
+        return proyectoRepositorio.save(p);
     }
 
     @Override
-    public List<Proyecto> obtenerProyectosPorPropietarioOrdenados(Usuario usuario) {
-        return proyectoRepositorio.findByUsuarioOrderByNombreProyectoAsc(usuario);
-    }
-
-    @Override
-    public Proyecto actualizarProyecto(Proyecto proyecto) {
-        return proyectoRepositorio.save(proyecto);
-    }
-
-    @Override
-    public void eliminarProyecto(Integer id) {
-        proyectoRepositorio.deleteById(id);
+    public void eliminar(Integer idProyecto, Integer idUsuario) {
+        Proyecto p = obtenerDeUsuario(idProyecto, idUsuario);
+        proyectoRepositorio.delete(p);
     }
 }

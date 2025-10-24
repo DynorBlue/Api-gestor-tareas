@@ -7,14 +7,21 @@ import java.util.List;
 
 public interface TareaServicio {
 
-    // CRUD
+    // CRUD básico
     Tarea guardarTarea(Tarea tarea);
+
+    // 👇 ESTE MÉTODO DEBE EXISTIR
     Tarea obtenerTareaPorId(Integer id);
+
     List<Tarea> obtenerTodasTareas();
+
     Tarea actualizarTarea(Tarea tarea);
+
     void eliminarTarea(Integer id);
 
-    // Métodos personalizados
+    // Personalizados
     List<Tarea> obtenerTareasPorProyecto(Proyecto proyecto);
+
     List<Tarea> obtenerTareasPrioridad(List<Proyecto> proyectos);
+
 }

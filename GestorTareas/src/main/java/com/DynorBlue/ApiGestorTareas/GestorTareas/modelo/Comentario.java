@@ -1,67 +1,42 @@
 package com.DynorBlue.ApiGestorTareas.GestorTareas.modelo;
 
-import jakarta.persistence.*;
-import org.w3c.dom.Text;
 
-import java.util.Date;
+import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDateTime;
+
 @Entity
+@Table(name = "comentario")
 public class Comentario {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_comentario")
     private Integer idComentario;
 
-    @ManyToOne
-    @JoinColumn(name = "idTarea")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_tarea", nullable = false)
     private Tarea tarea;
 
-    @Column(length = 255, nullable = false)
+    @Column(nullable = false, length = 255)
     private String comentario;
 
-    @Column(nullable = false)
-    private Date fechaComentario;
+    @CreationTimestamp
+    @Column(name = "fecha_comentario", nullable = false, updatable = false)
+    private LocalDateTime fechaComentario;
 
-    //getters setters y constructor
+    public Comentario() { }
 
-
-    public Comentario() {
-    }
-
-    public Comentario(String comentario, Integer idComentario, Date fechaComentario, Tarea tarea) {
-        this.comentario = comentario;
-        this.idComentario = idComentario;
-        this.fechaComentario = fechaComentario;
+    public Comentario(Tarea tarea, String comentario) {
         this.tarea = tarea;
-    }
-
-    public Integer getIdComentario() {
-        return idComentario;
-    }
-
-    public void setIdComentario(Integer idComentario) {
-        this.idComentario = idComentario;
-    }
-
-    public Date getFechaComentario() {
-        return fechaComentario;
-    }
-
-    public void setFechaComentario(Date fechaComentario) {
-        this.fechaComentario = fechaComentario;
-    }
-
-    public String getComentario() {
-        return comentario;
-    }
-
-    public void setComentario(String comentario) {
         this.comentario = comentario;
     }
 
-    public Tarea getTarea() {
-        return tarea;
-    }
-
-    public void setTarea(Tarea tarea) {
-        this.tarea = tarea;
-    }
+    public Integer getIdComentario() { return idComentario; }
+    public Tarea getTarea() { return tarea; }
+    public void setTarea(Tarea tarea) { this.tarea = tarea; }
+    public String getComentario() { return comentario; }
+    public void setComentario(String comentario) { this.comentario = comentario; }
+    public LocalDateTime getFechaComentario() { return fechaComentario; }
 }

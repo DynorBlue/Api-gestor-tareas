@@ -3,7 +3,6 @@ package com.DynorBlue.ApiGestorTareas.GestorTareas.servicio;
 import com.DynorBlue.ApiGestorTareas.GestorTareas.modelo.Proyecto;
 import com.DynorBlue.ApiGestorTareas.GestorTareas.modelo.Tarea;
 import com.DynorBlue.ApiGestorTareas.GestorTareas.repositorio.TareaRepositorio;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +12,6 @@ public class TareaServicioImpl implements TareaServicio {
 
     private final TareaRepositorio tareaRepositorio;
 
-    @Autowired
     public TareaServicioImpl(TareaRepositorio tareaRepositorio) {
         this.tareaRepositorio = tareaRepositorio;
     }
@@ -23,6 +21,7 @@ public class TareaServicioImpl implements TareaServicio {
         return tareaRepositorio.save(tarea);
     }
 
+    // 👇 ESTE MÉTODO ES EL QUE FALTABA
     @Override
     public Tarea obtenerTareaPorId(Integer id) {
         return tareaRepositorio.findById(id).orElse(null);
