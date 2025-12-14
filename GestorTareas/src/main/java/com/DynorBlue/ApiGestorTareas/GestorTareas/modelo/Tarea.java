@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "tarea")
@@ -36,9 +38,12 @@ public class Tarea {
     @Column
     private Integer prioridad;
 
-    @CreationTimestamp
+@CreationTimestamp
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
+
+    @OneToMany(mappedBy = "tarea", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comentario> comentarios = new ArrayList<>();
 
     public Tarea() { }
 
@@ -71,5 +76,8 @@ public class Tarea {
     public void setEstado(String estado) { this.estado = estado; }
     public Integer getPrioridad() { return prioridad; }
     public void setPrioridad(Integer prioridad) { this.prioridad = prioridad; }
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+public LocalDateTime getFechaCreacion() { return fechaCreacion; }
+
+    public List<Comentario> getComentarios() { return comentarios; }
+    public void setComentarios(List<Comentario> comentarios) { this.comentarios = comentarios; }
 }

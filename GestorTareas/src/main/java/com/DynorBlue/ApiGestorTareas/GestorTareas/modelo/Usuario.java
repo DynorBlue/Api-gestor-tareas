@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "usuario",
@@ -39,8 +41,11 @@ public class Usuario implements UserDetails {
     @Column(nullable = false, length = 150)
     private String nombre;
 
-    @Column(nullable = false)
+@Column(nullable = false)
     private boolean enabled = true;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Proyecto> proyectos = new ArrayList<>();
 
     public Usuario() { }
 
@@ -71,5 +76,8 @@ public class Usuario implements UserDetails {
     @Override public boolean isAccountNonExpired() { return true; }
     @Override public boolean isAccountNonLocked() { return true; }
     @Override public boolean isCredentialsNonExpired() { return true; }
-    @Override public boolean isEnabled() { return enabled; }
+@Override public boolean isEnabled() { return enabled; }
+
+    public List<Proyecto> getProyectos() { return proyectos; }
+    public void setProyectos(List<Proyecto> proyectos) { this.proyectos = proyectos; }
 }
